@@ -43,6 +43,8 @@ func (
 			s.Name,
 		),
 	)
+	LogEvent(fmt.Sprintf("Send message about %s down", s.Name))
+
 }
 func (
 	t *TelegramNotifier,
@@ -55,4 +57,6 @@ func (
 			s.Name,
 		),
 	)
+	LogEvent(fmt.Sprintf("Send message about %s recover", s.Name))
+
 }

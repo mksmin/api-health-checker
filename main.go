@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -45,7 +44,8 @@ func main() {
 				)
 			}
 		})
-	fmt.Println("Healthcheck service started on :8081")
+	LogEvent("Healthcheck service started on 127.0.0.1:8081")
+
 	log.Fatal(
 		http.ListenAndServe(
 			"127.0.0.1:8081",

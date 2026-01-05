@@ -34,6 +34,8 @@ func (
 	m *ServiceManager,
 ) Start() {
 	ticker := time.NewTicker(m.interval)
+	defer ticker.Stop()
+
 	for range ticker.C {
 		services := m.store.GetAll()
 		if len(services) == 0 {
