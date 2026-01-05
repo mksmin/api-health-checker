@@ -9,10 +9,7 @@ import (
 
 func main() {
 	store := NewServiceStore()
-	notifier := NewTelegramNotifier(
-		"BOT_TOKEN",
-		"CHAT_ID",
-	)
+	notifier := NewTelegramNotifier()
 	manager := NewServiceManager(
 		store,
 		notifier,

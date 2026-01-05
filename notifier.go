@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type TelegramNotifier struct {
@@ -10,10 +11,14 @@ type TelegramNotifier struct {
 	chatID string
 }
 
-func NewTelegramNotifier(
-	token string,
-	chatID string,
-) *TelegramNotifier {
+func NewTelegramNotifier() *TelegramNotifier {
+	token := os.Getenv("TG_BOT_TOKEN")
+	chatID := os.Getenv("TG_CHAT_ID")
+
+	if token == "" || chatID == "" {
+		panic("TG_BOT_TOKEN and TG_CHAT_ID must be set")
+	}
+
 	return &TelegramNotifier{
 		token:  token,
 		chatID: chatID,
