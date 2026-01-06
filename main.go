@@ -9,7 +9,13 @@ import (
 )
 
 func main() {
-	store := NewServiceStore()
+	path := os.Getenv("SERVICES_FILE")
+	if path == "" {
+		path = "./data/services.json"
+	}
+
+	repo := NewJSONStore(path)
+	store, err := NewServiceStore(repo)
 	notifier := NewTelegramNotifier()
 	manager := NewServiceManager(
 		store,
@@ -17,9 +23,12 @@ func main() {
 		1*time.Minute,
 	)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	go manager.Start()
-	notifier.NotifyDown(&Service{Name: "FastAPI1"})
-	notifier.NotifyUp(&Service{Name: "FastAPI1"})
+	//notifier.NotifyUp(&Service{Name: "Health Checker"})
 
 	http.HandleFunc(
 		"/services",
