@@ -1,0 +1,9 @@
+services:
+  healthchecker:
+    build: .
+    container_name: healthchecker
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"
+    restart: unless-stopped

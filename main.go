@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -41,11 +42,17 @@ func main() {
 				)
 			}
 		})
-	LogEvent("Healthcheck service started on 127.0.0.1:8081")
+	LogEvent("Healthcheck service started")
+
+	addr := os.Getenv("HTTP_ADDR")
+
+	if addr == "" {
+		addr = ":8081"
+	}
 
 	log.Fatal(
 		http.ListenAndServe(
-			"127.0.0.1:8081",
+			addr,
 			nil,
 		),
 	)

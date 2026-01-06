@@ -10,7 +10,7 @@ var logger *log.Logger
 
 func init() {
 	file, err := os.OpenFile(
-		"healthcheck.log",
+		"/app/logs/healthcheck.log",
 		os.O_CREATE|os.O_APPEND|os.O_WRONLY,
 		0644,
 	)
