@@ -25,8 +25,8 @@ RUN update-ca-certificates
 
 RUN useradd -m -s /bin/bash healthuser
 
-RUN mkdir -p /app/logs \
-    && chown -R healthuser:healthuser /app/logs
+RUN mkdir -p /app/logs /app/data \
+    && chown -R healthuser:healthuser /app/logs /app/data
 
 USER healthuser
 
