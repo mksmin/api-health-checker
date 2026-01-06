@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -30,11 +31,25 @@ func (
 ) sendMessage(
 	text string,
 ) {
-	url := fmt.Sprintf(
+	safeText := url.QueryEscape(text)
+	urlTg := fmt.Sprintf(
 		"https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s",
-		t.token, t.chatID, text,
+		t.token, t.chatID, safeText,
 	)
-	_, _ = http.Get(url)
+	resp, err := http.Get(urlTg)
+	if err != nil {
+		LogEvent(
+			fmt.Sprintf(
+				"Error while sending a message: %v",
+				err,
+			),
+		)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		LogEvent("Telegram returned non-200 status code")
+	}
 }
 
 func (
@@ -51,6 +66,7 @@ func (
 	LogEvent(fmt.Sprintf("Send message about %s down", s.Name))
 
 }
+
 func (
 	t *TelegramNotifier,
 ) NotifyUp(
