@@ -18,7 +18,10 @@ COPY --from=builder /app/healthcheck .
 
 RUN apt-get update && apt-get install -y \
     sudo \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+RUN update-ca-certificates
 
 RUN useradd -m -s /bin/bash healthuser
 
