@@ -1,7 +1,9 @@
-package main
+package notifier
 
 import (
 	"fmt"
+	"healthchecker/internal/common"
+	"healthchecker/internal/logs"
 	"net/http"
 	"net/url"
 	"os"
@@ -38,7 +40,7 @@ func (
 	)
 	resp, err := http.Get(urlTg)
 	if err != nil {
-		LogEvent(
+		logs.LogEvent(
 			fmt.Sprintf(
 				"Error while sending a message: %v",
 				err,
@@ -48,14 +50,14 @@ func (
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		LogEvent("Telegram returned non-200 status code")
+		logs.LogEvent("Telegram returned non-200 status code")
 	}
 }
 
 func (
 	t *TelegramNotifier,
 ) NotifyDown(
-	s *Service,
+	s *common.Service,
 ) {
 	t.sendMessage(
 		fmt.Sprintf(
@@ -63,14 +65,14 @@ func (
 			s.Name,
 		),
 	)
-	LogEvent(fmt.Sprintf("Send message about %s down", s.Name))
+	logs.LogEvent(fmt.Sprintf("Send message about %s down", s.Name))
 
 }
 
 func (
 	t *TelegramNotifier,
 ) NotifyUp(
-	s *Service,
+	s *common.Service,
 ) {
 	t.sendMessage(
 		fmt.Sprintf(
@@ -78,6 +80,6 @@ func (
 			s.Name,
 		),
 	)
-	LogEvent(fmt.Sprintf("Send message about %s recover", s.Name))
+	logs.LogEvent(fmt.Sprintf("Send message about %s recover", s.Name))
 
 }

@@ -2,6 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"healthchecker/internal/common"
+	"healthchecker/internal/logs"
+	"healthchecker/internal/notifier"
+	"healthchecker/internal/services"
+	"healthchecker/internal/storage"
 	"log"
 	"net/http"
 	"os"
@@ -14,12 +19,12 @@ func main() {
 		path = "./data/services.json"
 	}
 
-	repo := NewJSONStore(path)
-	store, err := NewServiceStore(repo)
-	notifier := NewTelegramNotifier()
-	manager := NewServiceManager(
+	repo := storage.NewJSONStore(path)
+	store, err := storage.NewServiceStore(repo)
+	notify := notifier.NewTelegramNotifier()
+	manager := services.NewServiceManager(
 		store,
-		notifier,
+		notify,
 		1*time.Minute,
 	)
 
@@ -28,7 +33,7 @@ func main() {
 	}
 
 	go manager.Start()
-	//notifier.NotifyUp(&Service{Name: "Health Checker"})
+	notify.NotifyUp(&common.Service{Name: "Health Checker"})
 
 	http.HandleFunc(
 		"/services",
@@ -51,7 +56,7 @@ func main() {
 				)
 			}
 		})
-	LogEvent("Healthcheck service started")
+	logs.LogEvent("Healthcheck service started")
 
 	addr := os.Getenv("HTTP_ADDR")
 
@@ -70,7 +75,7 @@ func main() {
 func ListServicesHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	store *ServiceStore,
+	store *storage.ServiceStore,
 ) {
 	service := store.GetAll()
 	w.Header().Set(
@@ -78,14 +83,14 @@ func ListServicesHandler(
 		"application/json",
 	)
 	json.NewEncoder(w).Encode(service)
-	LogEvent("Listed all services")
+	logs.LogEvent("Listed all services")
 }
 
 func AddServiceHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	store *ServiceStore) {
-	var service Service
+	store *storage.ServiceStore) {
+	var service common.Service
 	if err := json.NewDecoder(
 		r.Body,
 	).Decode(
@@ -96,20 +101,20 @@ func AddServiceHandler(
 			"Invalid request",
 			http.StatusBadRequest,
 		)
-		LogEvent("Failed to add service: invalid request")
+		logs.LogEvent("Failed to add service: invalid request")
 		return
 	}
 	store.Add(&service)
-	LogEvent("Added service: " + service.Name + " (" + service.URL + ")")
+	logs.LogEvent("Added service: " + service.Name + " (" + service.URL + ")")
 	w.WriteHeader(http.StatusCreated)
 }
 
 func DeleteServiceHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	store *ServiceStore,
+	store *storage.ServiceStore,
 ) {
-	var service Service
+	var service common.Service
 	if err := json.NewDecoder(
 		r.Body,
 	).Decode(
@@ -120,10 +125,10 @@ func DeleteServiceHandler(
 			"Invalid request",
 			http.StatusBadRequest,
 		)
-		LogEvent("Failed to delete service: invalid request")
+		logs.LogEvent("Failed to delete service: invalid request")
 		return
 	}
 	store.Delete(service.Name)
-	LogEvent("Deleted service: " + service.Name)
+	logs.LogEvent("Deleted service: " + service.Name)
 	w.WriteHeader(http.StatusNoContent)
 }

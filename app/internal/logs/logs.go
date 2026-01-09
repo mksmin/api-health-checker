@@ -1,16 +1,22 @@
-package main
+package logs
 
 import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var logger *log.Logger
 
 func init() {
+	cwd, _ := os.Getwd()
+	logDir := filepath.Join(cwd, "logs")
+	os.MkdirAll(logDir, 0755)
+
+	logPath := filepath.Join(logDir, "healthchecker.log")
 	file, err := os.OpenFile(
-		"/app/logs/healthcheck.log",
+		logPath,
 		os.O_CREATE|os.O_APPEND|os.O_WRONLY,
 		0644,
 	)

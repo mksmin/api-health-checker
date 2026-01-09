@@ -1,26 +1,23 @@
-package main
+package services
 
 import (
+	"healthchecker/internal/common"
+	"healthchecker/internal/logs"
+	"healthchecker/internal/notifier"
+	"healthchecker/internal/storage"
 	"net/http"
 	"time"
 )
 
-type Service struct {
-	Name     string
-	URL      string
-	IsUp     bool
-	LastDown time.Time
-}
-
 type ServiceManager struct {
-	store    *ServiceStore
-	notifier *TelegramNotifier
+	store    *storage.ServiceStore
+	notifier *notifier.TelegramNotifier
 	interval time.Duration
 }
 
 func NewServiceManager(
-	store *ServiceStore,
-	notifier *TelegramNotifier,
+	store *storage.ServiceStore,
+	notifier *notifier.TelegramNotifier,
 	interval time.Duration,
 ) *ServiceManager {
 	return &ServiceManager{
@@ -39,7 +36,7 @@ func (
 	for range ticker.C {
 		services := m.store.GetAll()
 		if len(services) == 0 {
-			LogEvent("No services to check")
+			logs.LogEvent("No services to check")
 			continue
 		}
 		for _, s := range services {
@@ -51,7 +48,7 @@ func (
 func (
 	m *ServiceManager,
 ) checkService(
-	s *Service,
+	s *common.Service,
 ) {
 	resp, err := http.Get(s.URL)
 	up := err == nil && resp.StatusCode < 500
@@ -59,10 +56,10 @@ func (
 	if !up && s.IsUp {
 		s.LastDown = time.Now()
 		m.notifier.NotifyDown(s)
-		LogEvent(s.Name + " is down")
+		logs.LogEvent(s.Name + " is down")
 	} else if up && !s.IsUp {
 		m.notifier.NotifyUp(s)
-		LogEvent(s.Name + " is up")
+		logs.LogEvent(s.Name + " is up")
 	}
 
 	s.IsUp = up

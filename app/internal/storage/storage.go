@@ -1,20 +1,22 @@
-package main
+package storage
 
 import (
 	"encoding/json"
 	"fmt"
+	"healthchecker/internal/common"
+	"healthchecker/internal/logs"
 	"os"
 	"path/filepath"
 	"sync"
 )
 
 type ServiceRepository interface {
-	Load() (map[string]*Service, error)
-	Save(map[string]*Service) error
+	Load() (map[string]*common.Service, error)
+	Save(map[string]*common.Service) error
 }
 
 type ServiceStore struct {
-	services map[string]*Service
+	services map[string]*common.Service
 	mu       sync.RWMutex
 	repo     ServiceRepository
 }
@@ -36,7 +38,7 @@ func NewServiceStore(
 func (
 	s *ServiceStore,
 ) Add(
-	service *Service,
+	service *common.Service,
 ) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,12 +59,12 @@ func (
 
 func (
 	s *ServiceStore,
-) GetAll() []*Service {
+) GetAll() []*common.Service {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	all := make(
-		[]*Service,
+		[]*common.Service,
 		0,
 		len(s.services),
 	)
@@ -82,11 +84,11 @@ func NewJSONStore(path string) *JSONStore {
 }
 
 func (s *JSONStore) Load() (
-	map[string]*Service,
+	map[string]*common.Service,
 	error,
 ) {
 	if _, err := os.Stat(s.path); os.IsNotExist(err) {
-		return map[string]*Service{}, nil
+		return map[string]*common.Service{}, nil
 	}
 
 	data, err := os.ReadFile(s.path)
@@ -94,7 +96,7 @@ func (s *JSONStore) Load() (
 		return nil, err
 	}
 
-	var services map[string]*Service
+	var services map[string]*common.Service
 	if err := json.Unmarshal(
 		data,
 		&services,
@@ -108,7 +110,7 @@ func (s *JSONStore) Load() (
 func (
 	s *JSONStore,
 ) Save(
-	services map[string]*Service,
+	services map[string]*common.Service,
 ) error {
 	dir := filepath.Dir(s.path)
 	tmp := s.path + ".tmp"
@@ -119,7 +121,7 @@ func (
 		" ",
 	)
 	if err != nil {
-		LogEvent(
+		logs.LogEvent(
 			fmt.Sprintf(
 				"Failed to MarshalIndent: %s", err,
 			),
@@ -131,7 +133,7 @@ func (
 		dir,
 		0777,
 	); err != nil {
-		LogEvent(
+		logs.LogEvent(
 			fmt.Sprintf(
 				"Failed to MkdirAll: %s", err,
 			),
@@ -144,7 +146,7 @@ func (
 		data,
 		0666,
 	); err != nil {
-		LogEvent(
+		logs.LogEvent(
 			fmt.Sprintf(
 				"Failed to WriteFile: %s", err,
 			),
@@ -152,7 +154,7 @@ func (
 		return err
 	}
 
-	LogEvent(fmt.Sprintf("Saving services to %s", tmp))
+	logs.LogEvent(fmt.Sprintf("Saving services to %s", tmp))
 
 	return os.Rename(
 		tmp,
