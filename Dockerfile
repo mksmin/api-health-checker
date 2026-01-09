@@ -3,10 +3,10 @@ FROM golang:1.25.5-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY app/go.mod ./
 RUN go mod tidy
 
-COPY . .
+COPY app/ .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o healthcheck
 
 # runtime stage
