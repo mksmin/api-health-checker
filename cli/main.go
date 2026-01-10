@@ -44,6 +44,18 @@ func main() {
 			os.Exit(1)
 		}
 		addService(serverAddr, *addName, *addURL)
+
+	case "delete":
+		deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+		deleteName := deleteCmd.String("name", "", "Service name")
+
+		deleteCmd.Parse(os.Args[2:])
+		if *deleteName == "" {
+			fmt.Println("Usage: checker-cli delete -name <name>")
+			os.Exit(1)
+		}
+		deleteService(serverAddr, *deleteName)
+
 	default:
 		fmt.Println("Unrecognized command: " + cmd)
 		os.Exit(1)
@@ -105,6 +117,40 @@ func addService(
 			resp.StatusCode,
 			string(body),
 		)
+	}
+
+}
+
+func deleteService(
+	addr string,
+	name string,
+) {
+	s := Service{
+		Name: name,
+	}
+	data, _ := json.Marshal(s)
+	req, err := http.NewRequest(
+		"DELETE",
+		addr,
+		bytes.NewReader(data),
+	)
+	if err != nil {
+		fmt.Println("Error create delete request:", err)
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Error while do http delete:", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNoContent {
+		fmt.Println("Service deleted", name)
+	} else {
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Println("Delete failed", resp.StatusCode, string(body))
 	}
 
 }
