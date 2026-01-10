@@ -128,7 +128,12 @@ func DeleteServiceHandler(
 		logs.LogEvent("Failed to delete service: invalid request")
 		return
 	}
-	store.Delete(service.Name)
-	logs.LogEvent("Deleted service: " + service.Name)
-	w.WriteHeader(http.StatusNoContent)
+	result := store.Delete(service.Name)
+	if result {
+		logs.LogEvent("Deleted service: " + service.Name)
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		logs.LogEvent("Delete: Service not found: " + service.Name)
+		w.WriteHeader(http.StatusNotFound)
+	}
 }

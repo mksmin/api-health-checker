@@ -51,10 +51,17 @@ func (
 	s *ServiceStore,
 ) Delete(
 	name string,
-) {
+) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if _, exists := s.services[name]; !exists {
+		return false
+	}
+
 	delete(s.services, name)
+	s.repo.Save(s.services)
+	return true
 }
 
 func (
