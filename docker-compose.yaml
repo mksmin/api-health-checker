@@ -1,6 +1,6 @@
 services:
   healthchecker:
-    build: .
+    build: ghcr.io/mksmin/api-health-checker:latest
     container_name: healthchecker
     volumes:
       - healthchecker-data:/app/data
