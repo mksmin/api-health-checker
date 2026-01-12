@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: cli/checker-cli
-          target: ${{ secrets.DEPLOY_PATH }}/cli
+          target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Verify binary
         uses: appleboy/ssh-action@v1.2.4
