@@ -48,7 +48,7 @@ func main() {
 
 		addCmd.Parse(os.Args[2:])
 		if *addName == "" || *addURL == "" {
-			fmt.Println("Usage: checker-cli add -name <name> -url <url>")
+			printUsage()
 			os.Exit(1)
 		}
 		addService(serverAddr, *addName, *addURL)
