@@ -2,7 +2,12 @@ name: Deploy Healthchecker
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - "app/**"
+      - "Dockerfile"
+      - "docker-compose.yml"
 
 jobs:
   deploy:
