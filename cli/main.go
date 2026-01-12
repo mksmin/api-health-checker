@@ -17,8 +17,16 @@ type Service struct {
 
 func main() {
 
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "help", "--help", "-h", "-help":
+			printUsage()
+			os.Exit(0)
+		}
+	}
+
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: checker-cli [list|add|delete]")
+		printUsage()
 		os.Exit(1)
 	}
 
@@ -26,7 +34,7 @@ func main() {
 
 	serverAddr := os.Getenv("CHECKER_ADDR")
 	if serverAddr == "" {
-		serverAddr = "http://localhost:8080/services"
+		serverAddr = "http://localhost:8081/services"
 	}
 
 	switch cmd {
@@ -55,13 +63,27 @@ func main() {
 			os.Exit(1)
 		}
 		deleteService(serverAddr, *deleteName)
-
+	case "help":
+		printUsage()
 	default:
 		fmt.Println("Unrecognized command: " + cmd)
+		printUsage()
 		os.Exit(1)
 	}
 }
 
+func printUsage() {
+	fmt.Println("Usage: checker-cli [command]")
+	fmt.Println()
+	fmt.Println("Available commands:")
+	fmt.Println("  list                    List all monitored services")
+	fmt.Println("  add -name <name> -url <url>  Add a new service to monitor")
+	fmt.Println("  delete -name <name>     Delete a service from monitoring")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  - You can set server address via CHECKER_ADDR environment variable")
+	fmt.Println("  - Default address: http://localhost:8080/services")
+}
 func listServices(
 	addr string,
 ) {
