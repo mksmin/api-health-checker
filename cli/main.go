@@ -15,8 +15,6 @@ type Service struct {
 	URL  string `json:"URL"`
 }
 
-// Trigger comment
-
 func main() {
 
 	if len(os.Args) > 1 {

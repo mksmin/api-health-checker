@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-// Trigger comment
-
 func main() {
 	path := os.Getenv("SERVICES_FILE")
 	if path == "" {
