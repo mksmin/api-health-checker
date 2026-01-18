@@ -6,8 +6,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Service struct {
@@ -16,7 +19,6 @@ type Service struct {
 }
 
 func main() {
-
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "help", "--help", "-h", "-help":
@@ -32,6 +34,11 @@ func main() {
 
 	cmd := os.Args[1]
 
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	serverAddr := os.Getenv("CHECKER_ADDR")
 	if serverAddr == "" {
 		serverAddr = "http://localhost:8081/services"
@@ -43,7 +50,7 @@ func main() {
 
 	case "add":
 		addCmd := flag.NewFlagSet("add", flag.ExitOnError)
-		addName := addCmd.String("name", "", "Service name")
+		addName := addCmd.String("n", "", "Service name")
 		addURL := addCmd.String("url", "", "Service URL")
 
 		addCmd.Parse(os.Args[2:])
@@ -55,11 +62,11 @@ func main() {
 
 	case "delete":
 		deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-		deleteName := deleteCmd.String("name", "", "Service name")
+		deleteName := deleteCmd.String("n", "", "Service name")
 
 		deleteCmd.Parse(os.Args[2:])
 		if *deleteName == "" {
-			fmt.Println("Usage: checker-cli delete -name <name>")
+			fmt.Println("Usage: checker-cli delete -n <name>")
 			os.Exit(1)
 		}
 		deleteService(serverAddr, *deleteName)
@@ -76,9 +83,9 @@ func printUsage() {
 	fmt.Println("Usage: checker-cli [command]")
 	fmt.Println()
 	fmt.Println("Available commands:")
-	fmt.Println("  list                    List all monitored services")
-	fmt.Println("  add -name <name> -url <url>  Add a new service to monitor")
-	fmt.Println("  delete -name <name>     Delete a service from monitoring")
+	fmt.Println("  list                      List all monitored services")
+	fmt.Println("  add -n <name> -url <url>  Add a new service to monitor")
+	fmt.Println("  delete -n <name>          Delete a service from monitoring")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  - You can set server address via CHECKER_ADDR environment variable")
