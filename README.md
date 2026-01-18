@@ -134,7 +134,7 @@ The application can be run in a container. This is the recommended approach.
 
 ```bash
 # Build the image
-docker build -t ghcr.io/yourusername/api-health-checker:latest .
+docker build -t ghcr.io/mksmin/api-health-checker:latest .
 
 # Run the container
 docker run -d \
@@ -142,7 +142,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   --env-file .env \
   -p 8081:8081 \
-  ghcr.io/yourusername/api-health-checker:latest
+  ghcr.io/mksmin/api-health-checker:latest
 
 ```
 
