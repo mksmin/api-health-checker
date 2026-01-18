@@ -18,7 +18,7 @@ import (
 func main() {
 
 	if err := godotenv.Load("../.env"); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf("Warning: could not load .env file: %v", err)
 	}
 
 	duration := 60 * time.Second
