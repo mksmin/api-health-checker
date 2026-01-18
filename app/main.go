@@ -11,9 +11,23 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	duration := 60 * time.Second
+	if envDuration := os.Getenv("SERVICES_DURATION"); envDuration != "" {
+		if parseEnvDuration, err := time.ParseDuration(envDuration); err != nil {
+			duration = parseEnvDuration
+		}
+	}
+
 	path := os.Getenv("SERVICES_FILE")
 	if path == "" {
 		path = "./data/services.json"
@@ -25,7 +39,7 @@ func main() {
 	manager := services.NewServiceManager(
 		store,
 		notify,
-		1*time.Minute,
+		duration,
 	)
 
 	if err != nil {
@@ -89,7 +103,8 @@ func ListServicesHandler(
 func AddServiceHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	store *storage.ServiceStore) {
+	store *storage.ServiceStore,
+) {
 	var service common.Service
 	if err := json.NewDecoder(
 		r.Body,
