@@ -3,3 +3,6 @@
 *.log
 Dockerfile
 docker-compose.yaml
+.env
+logs/
+data/
