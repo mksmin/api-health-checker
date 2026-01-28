@@ -1,3 +1,4 @@
+# trigger comment
 services:
   healthchecker:
     image: ghcr.io/mksmin/api-health-checker:latest
