@@ -40,6 +40,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
+            git pull
             docker compose pull 
             docker compose up -d
             docker image prune -f
